@@ -28,10 +28,10 @@
 # Determine the lsst_distrib top level directory
 #
 case $(uname) in
-	"Linux")
-		distribDir='/cvmfs/sw.lsst.eu/linux-x86_64/lsst_distrib';;
+    "Linux")
+        distribDir='/cvmfs/sw.lsst.eu/linux-x86_64/lsst_distrib';;
     "Darwin")
-		distribDir='/cvmfs/sw.lsst.eu/darwin-x86_64/lsst_distrib';;
+        distribDir='/cvmfs/sw.lsst.eu/darwin-x86_64/lsst_distrib';;
 esac
 
 #
@@ -40,7 +40,7 @@ esac
 #
 release=${LSST_DISTRIB_RELEASE:-'latest'}
 if [[ ${release} == 'latest' ]]; then
-	release=$(ls ${distribDir} | tail -1)
+    release=$(ls ${distribDir} | tail -1)
 fi
 releaseDir=${distribDir}/${release}
 

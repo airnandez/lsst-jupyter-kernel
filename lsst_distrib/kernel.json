@@ -1,0 +1,12 @@
+{
+    "display_name": "lsst_distrib",
+    "language": "python",
+    "env": {
+        "LSST_DISTRIB_RELEASE": "latest"
+    },
+    "argv": [
+        "{KERNEL_DIR}/lsst-jupyter-kernel-launcher.sh",
+        "-f",
+        "{connection_file}"
+    ]
+}

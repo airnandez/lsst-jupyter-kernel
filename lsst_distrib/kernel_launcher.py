@@ -1,7 +1,6 @@
 import sys
 import os
 import runpy
-import copy
 from typing import List
 
 def reorder_paths(paths: List[str], prefix: str = None) -> List[str]:

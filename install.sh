@@ -1,25 +1,31 @@
 #!/bin/bash
 
+#
 # Determine what platform we are running on
+#
 case $(uname) in
     "Linux")
-        kernelSpecsDir="$HOME/.local/share/jupyter/kernels";;
+        kernelSpecsDir="${HOME}/.local/share/jupyter/kernels";;
     "Darwin")
-        kernelSpecsDir="$HOME/Library/Jupyter/kernels";;
+        kernelSpecsDir="${HOME}/Library/Jupyter/kernels";;
     *)
         echo "unsupported platform"
         exit 1
         ;;
 esac
 
-# Create the destination directory
+#
+# Create the destination directory for the kernel
+#
 kernelName='lsst_distrib'
-destinationDir=${kernelSpecsDir}/${kernelName}
-mkdir -p ${destinationDir}
+srcDir=./${kernelName}
+dstDir=${kernelSpecsDir}/${kernelName}
+mkdir -p ${dstDir}
+rm -f ${dstDir}/*
 
-# Copy the relevant files
-sourceDir=./${kernelName}
-cp ${sourceDir}/logo-64x64.png ${destinationDir}
-sed "s|{KERNEL_DIR}|${destinationDir}|g" ${sourceDir}/kernel.json > ${destinationDir}/kernel.json
-cp ${sourceDir}/lsst-jupyter-kernel-launcher.sh ${destinationDir} && \
-    chmod u+x ${destinationDir}/lsst-jupyter-kernel-launcher.sh
+#
+# Copy the relevant files to the kernel directory
+#
+sed "s|{KERNEL_DIR}|${dstDir}|g" ${srcDir}/kernel.json > ${dstDir}/kernel.json
+cp ${srcDir}/logo-64x64.png ${srcDir}/kernel_launcher.py ${srcDir}/lsst-jupyter-kernel-launcher.sh ${dstDir}
+chmod u+x ${dstDir}/lsst-jupyter-kernel-launcher.sh

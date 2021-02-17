@@ -48,16 +48,27 @@ releaseDir=${distribDir}/${release}
 # EUPS setup the requested release
 #
 if [[ -f ${releaseDir}/loadLSST.bash ]]; then
-   export LSST_DISTRIB_RELEASE=$(basename ${releaseDir})
-   source ${releaseDir}/loadLSST.bash
-   setup lsst_distrib
+    #
+    # Unset ANACONDA, MINICONDA and CONDA environment variables so that
+    # the conda environment included in the Rubin's LSST science pipelines
+    # takes precedence over the one potentially existing in the
+    # Jupyter environment under which this kernel is being executed
+    #
+    for v in $(env | grep -e '^CONDA' -e '^ANACONDA' -e '^MINICONDA'); do 
+        eval $(echo $v | awk -F '=' '{printf "unset %s", $1}')
+    done
+    export LSST_DISTRIB_RELEASE=$(basename ${releaseDir})
+    source ${releaseDir}/loadLSST.bash
+    setup lsst_distrib
 fi
 
-
 #
-# Launch the Jupyter kernel using the python interpreter of the specified
-# release 
+# Launch the Jupyter kernel using the Python interpreter activated
+# by the Rubin environment.
 #
-# !!! WARNING: don't modify this line !!!
-#
-exec python -m ipykernel_launcher "$@"
+kernelDir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
+if [[ -f ${kernelDir}/kernel_launcher.py ]]; then
+    exec python ${kernelDir}/kernel_launcher.py "$@"
+else
+    exec python -m ipykernel_launcher "$@"
+fi

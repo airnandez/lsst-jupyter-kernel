@@ -57,9 +57,26 @@ if [[ -f ${releaseDir}/loadLSST.bash ]]; then
     for v in $(env | grep -e '^CONDA' -e '^ANACONDA' -e '^MINICONDA'); do 
         eval $(echo $v | awk -F '=' '{printf "unset %s", $1}')
     done
+
+    #
+    # Save the current PYTHONPATH
+    #
+    savedPythonPath=${PYTHONPATH}
+    unset PYTHONPATH
+
+    #
+    # Activate the Rubin environment
+    #
     export LSST_DISTRIB_RELEASE=$(basename ${releaseDir})
     source ${releaseDir}/loadLSST.bash
     setup lsst_distrib
+
+    #
+    # Restore PYTHONPATH
+    #
+    if [[ ! -z ${savedPythonPath} ]]; then
+        export PYTHONPATH="${PYTHONPATH}:${savedPythonPath}"
+    fi
 fi
 
 #

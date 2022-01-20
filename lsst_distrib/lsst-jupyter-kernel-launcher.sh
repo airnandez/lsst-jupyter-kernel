@@ -25,6 +25,15 @@
 # ----------------------------------------------------------------------------#
 
 #
+# Save and consume all command line arguments: we don't want them to be passed
+# to subshells, such as 'loadLSST.bash'
+#
+allArgs="$@"
+for arg in "$@"; do
+    shift
+done
+
+#
 # Determine the lsst_distrib top level directory
 #
 case $(uname) in
@@ -40,7 +49,10 @@ esac
 #
 release=${LSST_DISTRIB_RELEASE:-'latest'}
 if [[ ${release} == 'latest' ]]; then
-    release=$(ls ${distribDir} | tail -1)
+    # Select the most recent release among the stables (v*) and weeklies (w_*), 
+    # but not development releases (i.e. those ending by '-dev')
+    release=$(ls -d ${distribDir}/v*[0-9] ${distribDir}/w_*[0-9] | tail -1)
+    release=$(basename ${release})
 fi
 releaseDir=${distribDir}/${release}
 
@@ -65,10 +77,17 @@ if [[ -f ${releaseDir}/loadLSST.bash ]]; then
     unset PYTHONPATH
 
     #
-    # Activate the Rubin environment
+    # Activate the Rubin environment: if the value of the environment variable
+    # 'LSST_USE_EXTENDED_PIPELINES' is "true", activate the extended conda 
+    # environment by using the loader 'loadLSST-ext.bash'
     #
     export LSST_DISTRIB_RELEASE=$(basename ${releaseDir})
-    source ${releaseDir}/loadLSST.bash
+    loader=${releaseDir}/loadLSST.bash
+    if [[ ${LSST_USE_EXTENDED_PIPELINES} == "true" ]] && [[ -f ${releaseDir}/loadLSST-ext.bash ]]; then
+        loader=${releaseDir}/loadLSST-ext.bash
+    fi
+    unset LSST_USE_EXTENDED_PIPELINES
+    source ${loader}
     setup lsst_distrib
 
     #
@@ -85,7 +104,7 @@ fi
 #
 kernelDir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 if [[ -f ${kernelDir}/kernel_launcher.py ]]; then
-    exec python ${kernelDir}/kernel_launcher.py "$@"
+    exec python ${kernelDir}/kernel_launcher.py ${allArgs}
 else
-    exec python -m ipykernel_launcher "$@"
+    exec python -m ipykernel_launcher ${allArgs}
 fi

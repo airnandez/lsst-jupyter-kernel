@@ -19,9 +19,11 @@ This kernel specification requires that the LSST science pipelines are installed
 Execute the instructions below in the computer where you run JupyterLab (e.g. your laptop or a server in CC-IN2P3 login farm).
 
 ```
-git clone https://github.com/airnandez/lsst-jupyter-kernel.git /tmp/lsst-jupyter-kernel
-cd /tmp/lsst-jupyter-kernel
+cd $HOME
+git clone https://github.com/airnandez/lsst-jupyter-kernel.git
+cd lsst-jupyter-kernel
 bash ./install.sh
+rm -r $HOME/lsst-jupyter-kernel
 ```
 
 After a successful installation, you will find a directory located according to the operating system you deploy on, as follows:

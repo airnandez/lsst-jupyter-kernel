@@ -26,12 +26,10 @@
 
 #
 # Save and consume all command line arguments: we don't want them to be passed
-# to subshells, such as 'loadLSST.bash'
+# to sourced scripts, such as 'loadLSST.bash'
 #
 allArgs="$@"
-for arg in "$@"; do
-    shift
-done
+set --
 
 #
 # Determine the lsst_distrib top level directory
@@ -78,15 +76,15 @@ if [[ -f ${releaseDir}/loadLSST.bash ]]; then
 
     #
     # Activate the Rubin environment: if the value of the environment variable
-    # 'LSST_USE_EXTENDED_PIPELINES' is "true", activate the extended conda 
-    # environment by using the loader 'loadLSST-ext.bash'
+    # 'LSST_USE_EXTENDED_CONDA_ENV' is "true", activate the extended conda 
+    # environment by using the loader 'loadLSST-ext.bash' instead of 'loadLSST.bash'
     #
     export LSST_DISTRIB_RELEASE=$(basename ${releaseDir})
     loader=${releaseDir}/loadLSST.bash
-    if [[ ${LSST_USE_EXTENDED_PIPELINES} == "true" ]] && [[ -f ${releaseDir}/loadLSST-ext.bash ]]; then
+    if [[ ${LSST_USE_EXTENDED_CONDA_ENV} == "true" ]] && [[ -f ${releaseDir}/loadLSST-ext.bash ]]; then
         loader=${releaseDir}/loadLSST-ext.bash
     fi
-    unset LSST_USE_EXTENDED_PIPELINES
+    unset LSST_USE_EXTENDED_CONDA_ENV
     source ${loader}
     setup lsst_distrib
 

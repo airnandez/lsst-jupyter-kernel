@@ -3,7 +3,7 @@
     "language": "python",
     "env": {
         "LSST_DISTRIB_RELEASE": "latest",
-        "LSST_USE_EXTENDED_PIPELINES": "false"
+        "LSST_USE_EXTENDED_CONDA_ENV": "true"
     },
     "argv": [
         "{KERNEL_DIR}/lsst-jupyter-kernel-launcher.sh",

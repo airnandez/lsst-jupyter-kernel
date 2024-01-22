@@ -34,11 +34,12 @@ set --
 #
 # Determine the lsst_distrib top level directory
 #
+arch=$(uname -m | tr [:upper:] [:lower:])
 case $(uname) in
     "Linux")
-        distribDir='/cvmfs/sw.lsst.eu/linux-x86_64/lsst_distrib';;
+        distribDir="/cvmfs/sw.lsst.eu/linux-${arch}/lsst_distrib";;
     "Darwin")
-        distribDir='/cvmfs/sw.lsst.eu/darwin-x86_64/lsst_distrib';;
+        distribDir="/cvmfs/sw.lsst.eu/darwin-${arch}/lsst_distrib";;
 esac
 
 #
@@ -91,7 +92,7 @@ if [[ -f ${releaseDir}/loadLSST.bash ]]; then
     #
     # Restore PYTHONPATH
     #
-    if [[ ! -z ${savedPythonPath} ]]; then
+    if [[ -n ${savedPythonPath} ]]; then
         export PYTHONPATH="${PYTHONPATH}:${savedPythonPath}"
     fi
 fi

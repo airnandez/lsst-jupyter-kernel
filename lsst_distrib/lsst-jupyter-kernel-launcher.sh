@@ -34,11 +34,16 @@ set --
 #
 # Determine the lsst_distrib top level directory
 #
+arch=$(uname -m | tr [:upper:] [:lower:])
 case $(uname) in
     "Linux")
-        distribDir='/cvmfs/sw.lsst.eu/linux-x86_64/lsst_distrib';;
+        distribDir="/cvmfs/sw.lsst.eu/linux-${arch}/lsst_distrib";;
     "Darwin")
-        distribDir='/cvmfs/sw.lsst.eu/darwin-x86_64/lsst_distrib';;
+        distribDir="/cvmfs/sw.lsst.eu/darwin-${arch}/lsst_distrib";;
+    *)
+        echo "unsupported operating system $(uname)"
+        exit 1
+        ;;
 esac
 
 #
@@ -85,15 +90,28 @@ if [[ -f ${releaseDir}/loadLSST.bash ]]; then
         loader=${releaseDir}/loadLSST-ext.bash
     fi
     unset LSST_USE_EXTENDED_CONDA_ENV
+
+    #
+    # Set up the LSST Science Pipelines environment
+    #
     source ${loader}
     setup lsst_distrib
 
     #
     # Restore PYTHONPATH
     #
-    if [[ ! -z ${savedPythonPath} ]]; then
+    if [[ -n ${savedPythonPath} ]]; then
         export PYTHONPATH="${PYTHONPATH}:${savedPythonPath}"
     fi
+fi
+
+#
+# Source user-specific environment, to be compatible with behavior at the USDF's RSP.
+# https://nb.lsst.io/science-pipelines/science-pipelines-in-notebooks.html
+#
+userSetups="${HOME}/notebooks/.user_setups"
+if [[ -f ${userSetups} ]]; then
+    source ${userSetups}
 fi
 
 #

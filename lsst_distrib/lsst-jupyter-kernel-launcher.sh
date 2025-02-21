@@ -42,7 +42,7 @@ set --
 # installed.
 function getRelaseDir() {
     local release=$1
-    local declare -a distribDirs
+    local distribDirs=()
     local arch=$(uname -m | tr [:upper:] [:lower:])
     case $(uname) in
         "Linux")
@@ -75,7 +75,7 @@ function getRelaseDir() {
     fi
 
     # Look for the specified release in the directories where the releases
-    # are installed.
+    # are expected to be installed.
     for dir in ${distribDirs[@]}; do
         if [[ -d "${dir}/${release}" ]]; then
             echo "${dir}/${release}"

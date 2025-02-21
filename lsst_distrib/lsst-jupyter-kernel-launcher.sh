@@ -47,7 +47,7 @@ function getRelaseDir() {
     case $(uname) in
         "Linux")
             distribDirs=(
-            	# Prefer releases built on AlmaLinux, if available
+                # Prefer releases built on AlmaLinux, if available
                 "/cvmfs/sw.lsst.eu/almalinux-${arch}/lsst_distrib"
                 "/cvmfs/sw.lsst.eu/linux-${arch}/lsst_distrib"
             )
@@ -65,12 +65,12 @@ function getRelaseDir() {
 
     local releaseDir=""
     if [[ -z ${release} ]] || [[ ${release} == "latest" ]]; then
-	    # Select the most recent release among the stables (v*) and weeklies (w_*), 
-    	# but not development releases, that is not those ending by '-dev'
+        # Select the most recent release among the stables (v*) and weeklies (w_*), 
+        # but not development releases, that is not those ending by '-dev'
         releaseDir=$(ls -d ${distribDirs[0]}/v*[0-9] ${distribDirs[0]}/w_*[0-9] | tail -1)
         if [[ -n ${releaseDir} ]]; then
-        	echo ${releaseDir}
-        	return
+            echo ${releaseDir}
+            return
         fi
     fi
 

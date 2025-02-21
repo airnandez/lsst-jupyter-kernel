@@ -32,32 +32,66 @@ allArgs="$@"
 set --
 
 #
-# Determine the lsst_distrib top level directory
+# Helper functions
 #
-arch=$(uname -m | tr [:upper:] [:lower:])
-case $(uname) in
-    "Linux")
-        distribDir="/cvmfs/sw.lsst.eu/linux-${arch}/lsst_distrib";;
-    "Darwin")
-        distribDir="/cvmfs/sw.lsst.eu/darwin-${arch}/lsst_distrib";;
-    *)
-        echo "unsupported operating system $(uname)"
-        exit 1
-        ;;
-esac
+
+# getRelaseDir returns the absolute path of the directory where the given
+# release is installed. It accepts an argument with the name of the release
+# e.g. "w_2025_01" or "v28.0.1".
+# getRelaseDir returns an empty string if the release could not be found
+# installed.
+function getRelaseDir() {
+    local release=$1
+    local declare -a distribDirs
+    local arch=$(uname -m | tr [:upper:] [:lower:])
+    case $(uname) in
+        "Linux")
+            distribDirs=(
+            	# Prefer releases built on AlmaLinux, if available
+                "/cvmfs/sw.lsst.eu/almalinux-${arch}/lsst_distrib"
+                "/cvmfs/sw.lsst.eu/linux-${arch}/lsst_distrib"
+            )
+            ;;
+        "Darwin")
+            distribDirs=(
+                "/cvmfs/sw.lsst.eu/darwin-${arch}/lsst_distrib"
+            )
+            ;;
+        *)
+            echo ""
+            return
+            ;;
+    esac
+
+    local releaseDir=""
+    if [[ -z ${release} ]] || [[ ${release} == "latest" ]]; then
+	    # Select the most recent release among the stables (v*) and weeklies (w_*), 
+    	# but not development releases, that is not those ending by '-dev'
+        releaseDir=$(ls -d ${distribDirs[0]}/v*[0-9] ${distribDirs[0]}/w_*[0-9] | tail -1)
+        if [[ -n ${releaseDir} ]]; then
+        	echo ${releaseDir}
+        	return
+        fi
+    fi
+
+    # Look for the specified release in the directories where the releases
+    # are installed.
+    for dir in ${distribDirs[@]}; do
+        if [[ -d "${dir}/${release}" ]]; then
+            echo "${dir}/${release}"
+            return
+        fi
+    done
+    echo ""
+}
 
 #
-# Build the absolute path of the specified release via the environment
+# Retrieve the absolute path of the requested release, if any, or of the
+# latest available release.
 # variable "LSST_DISTRIB_RELEASE" or the "latest" available
 #
 release=${LSST_DISTRIB_RELEASE:-'latest'}
-if [[ ${release} == 'latest' ]]; then
-    # Select the most recent release among the stables (v*) and weeklies (w_*), 
-    # but not development releases (i.e. those ending by '-dev')
-    release=$(ls -d ${distribDir}/v*[0-9] ${distribDir}/w_*[0-9] | tail -1)
-    release=$(basename ${release})
-fi
-releaseDir=${distribDir}/${release}
+releaseDir=$(getRelaseDir ${release})
 
 #
 # EUPS setup the requested release
